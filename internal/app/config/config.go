@@ -18,9 +18,12 @@ type Config struct {
 var Root Config
 
 func Load() {
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Printf("инфо: .env файл не найден, используются системные переменные: %v", err)
+	}
+
 	err := envconfig.Process("APP", &Root)
 	if err != nil {
-		log.Fatal("ошибка при загрузке конфигурации: ", err)
+		log.Fatalf("критическая ошибка конфигурации: %v", err)
 	}
 }
