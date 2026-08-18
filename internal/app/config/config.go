@@ -19,11 +19,11 @@ var Root Config
 
 func Load() {
 	if err := godotenv.Load(); err != nil {
-		log.Printf("инфо: .env файл не найден, используются системные переменные: %v", err)
+		log.Printf("info: .env file not found, falling back to environment variables: %v", err)
 	}
 
 	err := envconfig.Process("APP", &Root)
 	if err != nil {
-		log.Fatalf("критическая ошибка конфигурации: %v", err)
+		log.Fatalf("error: failed to load configuration: %v", err)
 	}
 }
