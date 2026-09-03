@@ -4,8 +4,7 @@ import "time"
 
 type (
 	Repository struct {
-		Postgres       RepositoryPostgres
-		MigrationTable string `split_words:"true" default:"schema_migrations"`
+		Postgres RepositoryPostgres
 	}
 
 	RepositoryPostgres struct {
@@ -13,9 +12,9 @@ type (
 		Username       string        `required:"true"`
 		Password       string        `required:"true"`
 		Name           string        `required:"true"`
-		ConnTimeout    time.Duration `split_words:"true" default:"10s"` // Добавили таймаут подключения!
+		ConnTimeout    time.Duration `split_words:"true" default:"10s"`
 		ReadTimeout    time.Duration `split_words:"true" default:"30s"`
 		WriteTimeout   time.Duration `split_words:"true" default:"30s"`
-		MigrationTable string        `split_words:"true" default:"schema_migrations"` // Добавили таблицу миграций для TASK-1003!
+		MigrationTable string        `split_words:"true" default:"schema_migrations"`
 	}
 )

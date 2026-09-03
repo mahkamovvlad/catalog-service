@@ -82,8 +82,13 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 		return 0, 0, fmt.Errorf("failed to discover migrations: %w", err)
 	}
 
-	migrator := migrate.NewMigrator(c.rawBunDB, migrations, migrate.WithTableName(c.cfg.MigrationTable))
-
+	migrator := migrate.NewMigrator(
+		c.rawBunDB,
+		migrations,
+		migrate.WithTableName(c.cfg.MigrationTable),
+		migrate.WithLocksTableName(c.cfg.MigrationTable+"_lock"),
+		migrate.WithMarkAppliedOnSuccess(true),
+	)
 	if err := migrator.Init(ctx); err != nil {
 		return 0, 0, fmt.Errorf("failed to init migrator: %w", err)
 	}
