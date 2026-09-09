@@ -15,7 +15,7 @@ import (
 	"github.com/uptrace/bun/migrate"
 
 	"github.com/mahkamovvlad/catalog-service/internal/app/config/section"
-	"github.com/mahkamovvlad/catalog-service/migration" // Твой пакет со встроенными SQL файлами [4]
+	"github.com/mahkamovvlad/catalog-service/migration"
 )
 
 type (
