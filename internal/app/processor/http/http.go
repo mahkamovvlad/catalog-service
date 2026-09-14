@@ -16,32 +16,41 @@ type httpProc struct {
 	addr   string
 }
 
-func NewHTTP(hHealth rhandler.Health, cfg section.ProcessorWebServer) *httpProc {
+func NewHTTP(
+	hHealth rhandler.Health,
+	hCategory rhandler.Category,
+	hProduct rhandler.Product,
+	cfg section.ProcessorWebServer,
+) *httpProc {
 	r := mux.NewRouter()
-
 	r.NotFoundHandler = http.HandlerFunc(handlerNotFound)
 
 	vGenericRegHealthCheck(r, hHealth)
 
-	_ = r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-		path, err := route.GetPathTemplate()
-		if err != nil {
-			return nil
-		}
-		methods, err := route.GetMethods()
-		if err != nil || len(methods) == 0 {
-			return nil
-		}
+	rV1 := r.PathPrefix("/v1").Subrouter()
+	v1RegCategoryHandler(rV1, hCategory)
+	v1RegProductHandler(rV1, hProduct)
 
-		log.Printf("Route registered: %s %s", methods, path)
+	_ = r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		path, _ := route.GetPathTemplate()
+		methods, _ := route.GetMethods()
+		if path != "" && len(methods) > 0 {
+			log.Printf("Route: %v %s", methods, path)
+		}
 		return nil
 	})
 
-	p := httpProc{addr: fmt.Sprintf(":%d", cfg.ListenPort)}
-	p.server.Addr = p.addr
-	p.server.Handler = r
+	addr := fmt.Sprintf(":%d", cfg.ListenPort)
 
-	return &p
+	return &httpProc{
+		server: http.Server{
+			Addr:         addr,
+			Handler:      r,
+			ReadTimeout:  cfg.ReadTimeout,
+			WriteTimeout: cfg.WriteTimeout,
+		},
+		addr: addr,
+	}
 }
 
 func (p *httpProc) Serve() error {
