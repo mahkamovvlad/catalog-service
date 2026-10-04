@@ -1,0 +1,25 @@
+package binding
+
+import (
+	"net/http"
+
+	"github.com/go-playground/form/v4"
+)
+
+var formDecoder = form.NewDecoder()
+
+type queryBinding struct{}
+
+func (queryBinding) Name() string {
+	return "URL-QUERY"
+}
+
+func (queryBinding) Bind(req *http.Request, obj any) error {
+	// 1. Получите query-параметры через req.URL.Query()
+	values := req.URL.Query()
+	// 2. Декодируйте через formDecoder.Decode(obj, values), обработайте ошибку
+	if err := formDecoder.Decode(obj, values); err != nil {
+		return err
+	}
+	return validate(obj)
+}
