@@ -30,7 +30,7 @@ func (r *repoPg) Create(ctx context.Context, category entity.Category) error {
 
 func (r *repoPg) GetByGUIDs(ctx context.Context, guids []uuid.UUID) ([]entity.Category, error) {
 	var categories []entity.Category
-	err := r.NewSelect().Model(&categories).Where("guid IN (?)", bun.List(guids)).Scan(ctx)
+	err := r.NewSelect().Model(&categories).Where("guid IN (?)", bun.In(guids)).Scan(ctx)
 	return categories, err
 }
 
