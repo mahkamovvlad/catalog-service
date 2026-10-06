@@ -30,7 +30,7 @@ func (r *repoPg) Create(ctx context.Context, product entity.Product) error {
 
 func (r *repoPg) GetByGUIDs(ctx context.Context, guids []uuid.UUID) ([]entity.Product, error) {
 	var products []entity.Product
-	err := r.NewSelect().Model(&products).Where("guid IN (?)", bun.List(guids)).Scan(ctx)
+	err := r.NewSelect().Model(&products).Where("guid IN (?)", bun.In(guids)).Scan(ctx)
 	return products, err
 }
 
@@ -51,8 +51,9 @@ func (r *repoPg) Delete(ctx context.Context, guid uuid.UUID) error {
 	return rcpostgres.DeleteErr(err)
 }
 
-func (r *repoPg) List(ctx context.Context, name *string, categoryGUID *uuid.UUID) ([]entity.Product, error) {
+func (r *repoPg) List(ctx context.Context, name *string, categoryGUID *uuid.UUID, minPrice, maxPrice *int64) ([]entity.Product, error) {
 	var products []entity.Product
+
 	query := r.NewSelect().Model(&products)
 
 	if name != nil {
@@ -61,7 +62,14 @@ func (r *repoPg) List(ctx context.Context, name *string, categoryGUID *uuid.UUID
 	if categoryGUID != nil {
 		query = query.Where("category_guid = ?", *categoryGUID)
 	}
+	if minPrice != nil {
+		query = query.Where("price >= ?", *minPrice)
+	}
+	if maxPrice != nil {
+		query = query.Where("price <= ?", *maxPrice)
+	}
 
 	err := query.Scan(ctx)
+
 	return products, err
 }
